@@ -6,51 +6,38 @@
     <title>T1 Grade Tracker | UNSW</title>
     <style>
         :root {
-            --bg: #0b0f19;
-            --card: #1e293b;
-            --accent: #38bdf8;
-            --text: #f8fafc;
-            --mtrn: #f43f5e;
-            --manf: #10b981;
-            --elec: #8b5cf6;
+            --bg: #0b0f19; --card: #1e293b; --accent: #38bdf8; --text: #f8fafc;
+            --mtrn: #f43f5e; --manf: #10b981; --elec: #8b5cf6;
         }
-
         body {
-            font-family: 'Inter', system-ui, -apple-system, sans-serif;
-            background-color: var(--bg);
-            color: var(--text);
-            margin: 0;
-            padding: 2rem;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            font-family: 'Inter', system-ui, sans-serif;
+            background-color: var(--bg); color: var(--text);
+            margin: 0; padding: 2rem; display: flex; flex-direction: column; align-items: center;
         }
-
         .container { width: 100%; max-width: 1000px; }
         header { text-align: center; margin-bottom: 2rem; }
         h1 { margin: 0 0 0.5rem; color: var(--accent); font-size: 2.5rem; letter-spacing: -1px; }
         p { color: #94a3b8; margin: 0; }
 
         .sync-panel {
-            background: rgba(56, 189, 248, 0.05);
-            border: 1px dashed var(--accent);
-            padding: 1.5rem;
-            border-radius: 1rem;
-            margin-bottom: 2.5rem;
+            background: rgba(56, 189, 248, 0.05); border: 1px dashed var(--accent);
+            padding: 1.5rem; border-radius: 1rem; margin-bottom: 2.5rem;
         }
         .sync-row { display: flex; gap: 10px; margin-top: 10px; }
-        .sync-btn { flex: 1; padding: 10px; border-radius: 6px; font-weight: bold; border: none; cursor: pointer; color: white; }
+        .sync-btn { 
+            flex: 1; padding: 10px; border-radius: 6px; font-weight: bold; 
+            border: none; cursor: pointer; color: white; transition: opacity 0.2s; 
+        }
+        .sync-btn:hover { opacity: 0.9; }
         .sync-push { background: #6366f1; }
         .sync-pull { background: #10b981; }
+        .divider { height: 1px; background: #334155; margin: 1.5rem 0; border: none; }
 
         .grid { display: grid; gap: 1.5rem; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
-        
         .card {
             background: var(--card); padding: 1.5rem; border-radius: 1rem;
-            border: 1px solid rgba(255,255,255,0.05);
-            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.2);
+            border: 1px solid rgba(255,255,255,0.05); box-shadow: 0 10px 15px -3px rgba(0,0,0,0.2);
         }
-
         .course-header { margin-bottom: 1rem; border-bottom: 1px solid #334155; padding-bottom: 1rem; }
         .course-title { font-size: 1.3rem; font-weight: 800; }
         .course-desc { font-size: 0.85rem; color: #94a3b8; display: block; margin-top: 0.2rem; }
@@ -58,7 +45,6 @@
         .stats { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.5rem; }
         .current-grade { font-size: 2rem; font-weight: 800; }
         .banked-text { font-size: 0.85rem; color: #cbd5e1; }
-
         .progress-bg { background: #0f172a; height: 8px; border-radius: 4px; overflow: hidden; margin-bottom: 1.5rem; }
         .progress-fill { height: 100%; transition: width 0.5s ease; }
         
@@ -68,19 +54,15 @@
 
         .input-zone { background: #0f172a; padding: 1rem; border-radius: 0.75rem; margin-bottom: 1rem; }
         input { 
-            width: 100%; background: #1e293b; border: 1px solid #334155; 
-            color: white; padding: 0.6rem; border-radius: 0.4rem; margin-bottom: 0.5rem; 
-            box-sizing: border-box; font-family: inherit;
+            width: 100%; background: #1e293b; border: 1px solid #334155; color: white; 
+            padding: 0.6rem; border-radius: 0.4rem; margin-bottom: 0.5rem; box-sizing: border-box; 
         }
         input:focus { outline: none; border-color: var(--accent); }
-        
         .row { display: flex; gap: 0.5rem; }
         .row input { margin-bottom: 0; }
-
         button.add-btn {
             width: 100%; background: var(--accent); color: #0f172a; border: none;
-            padding: 0.75rem; border-radius: 0.4rem; font-weight: bold; cursor: pointer; 
-            margin-top: 0.75rem; transition: opacity 0.2s;
+            padding: 0.75rem; border-radius: 0.4rem; font-weight: bold; cursor: pointer; margin-top: 0.75rem;
         }
 
         .item-list { list-style: none; padding: 0; margin: 0; }
@@ -89,10 +71,8 @@
         .item-info { display: flex; flex-direction: column; gap: 0.2rem; }
         .item-name { font-weight: 600; font-size: 0.95rem; }
         .item-math { font-size: 0.75rem; color: #94a3b8; }
-        .item-result { display: flex; align-items: center; gap: 1rem; }
         .banked-badge { background: #334155; padding: 0.2rem 0.5rem; border-radius: 0.25rem; font-size: 0.8rem; font-weight: bold; }
         .del-btn { background: transparent; color: #ef4444; padding: 0.2rem; border: none; cursor: pointer; font-size: 1.2rem; }
-        
         .loading { opacity: 0.5; pointer-events: none; }
     </style>
 </head>
@@ -105,13 +85,25 @@
     </header>
 
     <div class="sync-panel" id="syncPanel">
-        <label style="font-size: 0.8rem; font-weight: bold; color: var(--accent);">☁️ DEVICE SYNC</label>
+        <label style="font-size: 0.8rem; font-weight: bold; color: var(--accent);">☁️ CLOUD SYNC</label>
+        <p style="font-size: 0.75rem; color: #94a3b8; margin: 4px 0 10px;">Powered by nPoint.io (Ad-blocker safe).</p>
+        
         <input type="text" id="syncKeyInput" placeholder="Enter Sync Key to Pull, or leave blank to Push a new one">
         <div class="sync-row">
             <button class="sync-btn sync-push" onclick="pushToCloud()">↑ Push to Cloud</button>
             <button class="sync-btn sync-pull" onclick="pullFromCloud()">↓ Pull from Cloud</button>
         </div>
         <div id="syncStatus" style="font-size: 0.8rem; margin-top: 10px; text-align: center;"></div>
+
+        <hr class="divider">
+
+        <label style="font-size: 0.8rem; font-weight: bold; color: var(--manf);">📦 OFFLINE TRANSFER</label>
+        <p style="font-size: 0.75rem; color: #94a3b8; margin: 4px 0 10px;">Bypasses networks entirely. Copies your data as a secure text string.</p>
+        
+        <div class="sync-row">
+            <button class="sync-btn" style="background: #334155;" onclick="exportData()">Export Code</button>
+            <button class="sync-btn" style="background: #334155;" onclick="importData()">Import Code</button>
+        </div>
     </div>
 
     <div class="grid" id="dashboard"></div>
@@ -143,7 +135,6 @@
 
             const runningAverage = weightAttempted > 0 ? ((bankedMarks / weightAttempted) * 100).toFixed(1) : 0;
 
-            // Cleanly build the list items first to avoid nested template literal errors
             let listHTML = '';
             course.assessments.forEach((task, index) => {
                 const earned = ((task.score / task.outOf) * task.weight).toFixed(1);
@@ -153,14 +144,13 @@
                         <span class="item-name">${task.name}</span>
                         <span class="item-math">Scored ${task.score}/${task.outOf} (Worth ${task.weight}%)</span>
                     </div>
-                    <div class="item-result">
+                    <div style="display:flex; align-items:center; gap: 1rem;">
                         <span class="banked-badge">+${earned}</span>
                         <button class="del-btn" onclick="deleteTask('${course.id}', ${index})">×</button>
                     </div>
                 </li>`;
             });
 
-            // Construct the main card HTML
             const card = document.createElement('div');
             card.className = 'card';
             card.innerHTML = `
@@ -193,21 +183,16 @@
     }
 
     function addTask(courseId) {
-        const nameInput = document.getElementById(`name-${courseId}`);
-        const scoreInput = document.getElementById(`score-${courseId}`);
-        const outOfInput = document.getElementById(`outof-${courseId}`);
-        const weightInput = document.getElementById(`weight-${courseId}`);
-
-        const name = nameInput.value.trim();
-        const score = parseFloat(scoreInput.value);
-        const outOf = parseFloat(outOfInput.value);
-        const weight = parseFloat(weightInput.value);
+        const name = document.getElementById(`name-${courseId}`).value.trim();
+        const score = parseFloat(document.getElementById(`score-${courseId}`).value);
+        const outOf = parseFloat(document.getElementById(`outof-${courseId}`).value);
+        const weight = parseFloat(document.getElementById(`weight-${courseId}`).value);
 
         if (name && !isNaN(score) && !isNaN(outOf) && !isNaN(weight) && outOf > 0) {
             courses[courseId].assessments.push({ name, score, outOf, weight });
             saveAndRender();
         } else {
-            alert("Please ensure all fields are correctly filled before adding an assessment.");
+            alert("Check your inputs. Make sure 'Out Of' is greater than 0.");
         }
     }
 
@@ -216,36 +201,40 @@
         saveAndRender();
     }
 
-    // Cloud Sync Logic
+    // --- NEW CLOUD API (nPoint.io) ---
     async function pushToCloud() {
         const status = document.getElementById('syncStatus');
         const keyInput = document.getElementById('syncKeyInput');
         const panel = document.getElementById('syncPanel');
         
-        status.innerText = "Pushing to cloud...";
+        status.innerText = "Connecting to nPoint...";
         panel.classList.add('loading');
 
         try {
-            const isUpdate = keyInput.value.trim().length > 0;
-            const method = isUpdate ? 'PUT' : 'POST';
-            const url = isUpdate ? `https://jsonblob.com/api/jsonBlob/${keyInput.value}` : `https://jsonblob.com/api/jsonBlob`;
+            const currentKey = keyInput.value.trim();
+            const url = currentKey ? `https://api.npoint.io/${currentKey}` : 'https://api.npoint.io/';
 
+            // nPoint uses POST for both creating and updating
             const res = await fetch(url, {
-                method: method,
-                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(courses)
             });
 
-            if (method === 'POST') {
-                const blobId = res.headers.get('Location').split('/').pop();
-                keyInput.value = blobId;
-                status.innerText = "Success! Save this Key to use on your phone: " + blobId;
+            if (!res.ok) throw new Error("Network response rejected");
+
+            if (!currentKey) {
+                const data = await res.json();
+                // Extract the unique ID from the document URL returned by nPoint
+                const newId = data.document.split('/').pop();
+                keyInput.value = newId;
+                status.innerText = "Success! Save this Key: " + newId;
             } else {
                 status.innerText = "Cloud Updated Successfully!";
             }
         } catch (e) {
             console.error(e);
-            status.innerText = "Error pushing data. Check your connection.";
+            status.innerText = "Network Error. Use Offline Transfer below.";
         }
         panel.classList.remove('loading');
     }
@@ -257,18 +246,40 @@
 
         status.innerText = "Pulling data...";
         try {
-            const res = await fetch(`https://jsonblob.com/api/jsonBlob/${key}`);
+            const res = await fetch(`https://api.npoint.io/${key}`);
             if (!res.ok) throw new Error("Invalid response");
             courses = await res.json();
             saveAndRender();
             status.innerText = "Sync Complete! Data loaded.";
         } catch (e) {
             console.error(e);
-            status.innerText = "Error: Invalid Key or Network Issue.";
+            status.innerText = "Error: Invalid Key or Network blocked.";
         }
     }
 
-    // Initial render
+    // --- OFFLINE TRANSFER ---
+    function exportData() {
+        const encoded = btoa(JSON.stringify(courses));
+        navigator.clipboard.writeText(encoded).then(() => {
+            alert("Code copied to clipboard! Paste this into the Import box on your other device.");
+        }).catch(err => {
+            prompt("Copy this code:", encoded);
+        });
+    }
+
+    function importData() {
+        const input = prompt("Paste your export code here:");
+        if (input) {
+            try {
+                courses = JSON.parse(atob(input));
+                saveAndRender();
+                alert("Data imported successfully!");
+            } catch (e) {
+                alert("Invalid code format.");
+            }
+        }
+    }
+
     saveAndRender();
 </script>
 </body>
