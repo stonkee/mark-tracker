@@ -3,16 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GradeVibe Pro | T3 UNSW</title>
+    <title>T1 Grade Tracker | UNSW</title>
     <style>
         :root {
-            --bg: #0b0f1a;
-            --card: #161e2e;
+            --bg: #0b0f19;
+            --card: #1e293b;
             --accent: #38bdf8;
-            --text: #f1f5f9;
+            --text: #f8fafc;
             --mtrn: #f43f5e;
             --manf: #10b981;
-            --elec: #6366f1;
+            --elec: #8b5cf6;
         }
 
         body {
@@ -20,275 +20,196 @@
             background-color: var(--bg);
             color: var(--text);
             margin: 0;
-            padding: 1rem;
+            padding: 2rem;
             display: flex;
             flex-direction: column;
             align-items: center;
         }
 
         .container { width: 100%; max-width: 1000px; }
+        header { text-align: center; margin-bottom: 2.5rem; }
+        h1 { margin: 0 0 0.5rem; color: var(--accent); font-size: 2.5rem; letter-spacing: -1px; }
+        p { color: #94a3b8; margin: 0; }
+
+        .grid { 
+            display: grid; 
+            gap: 1.5rem; 
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); 
+        }
         
-        header { text-align: center; margin: 2rem 0; }
-        h1 { font-size: 2.2rem; margin-bottom: 0.5rem; background: linear-gradient(to right, #38bdf8, #818cf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        
-        /* Sync Panel */
-        .sync-panel {
-            background: rgba(56, 189, 248, 0.05);
-            border: 1px dashed var(--accent);
+        .card {
+            background: var(--card);
             padding: 1.5rem;
             border-radius: 1rem;
-            margin-bottom: 2rem;
-        }
-        .sync-row { display: flex; gap: 10px; margin-top: 10px; }
-        
-        /* Grid */
-        .subject-grid { 
-            display: grid; 
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); 
-            gap: 1.5rem; 
-        }
-
-        .card { 
-            background: var(--card); 
-            padding: 1.5rem; 
-            border-radius: 1.25rem; 
             border: 1px solid rgba(255,255,255,0.05);
-            display: flex;
-            flex-direction: column;
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.2);
         }
+
+        .course-header { margin-bottom: 1rem; border-bottom: 1px solid #334155; padding-bottom: 1rem; }
+        .course-title { font-size: 1.3rem; font-weight: 800; }
+        .course-desc { font-size: 0.85rem; color: #94a3b8; display: block; margin-top: 0.2rem; }
+
+        .stats { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.5rem; }
+        .current-grade { font-size: 2rem; font-weight: 800; }
+        .banked-text { font-size: 0.85rem; color: #cbd5e1; }
+
+        .progress-bg { background: #0f172a; height: 8px; border-radius: 4px; overflow: hidden; margin-bottom: 1.5rem; }
+        .progress-fill { height: 100%; transition: width 0.5s ease; }
         
-        .subject-header { border-bottom: 1px solid #2d3748; padding-bottom: 10px; margin-bottom: 15px; }
-        .subject-title { font-size: 1.4rem; font-weight: 800; display: block; }
-        .subject-subtitle { font-size: 0.8rem; color: #94a3b8; }
-
-        .big-stat { font-size: 2rem; font-weight: 800; margin: 10px 0; }
-        .banked { font-size: 0.9rem; color: #94a3b8; }
-
-        .progress-container { background: #2d3748; height: 10px; border-radius: 5px; margin: 15px 0; overflow: hidden; }
-        .progress-bar { height: 100%; width: 0%; transition: width 0.8s ease; }
+        .mtrn-fill { background: var(--mtrn); }
+        .manf-fill { background: var(--manf); }
+        .elec-fill { background: var(--elec); }
 
         /* Inputs */
-        .input-box { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; }
-        .row { display: flex; gap: 8px; }
+        .input-zone { background: #0f172a; padding: 1rem; border-radius: 0.75rem; margin-bottom: 1rem; }
         input { 
-            background: #1f2937; border: 1px solid #374151; padding: 10px; 
-            border-radius: 6px; color: white; flex: 1; font-size: 0.9rem;
+            width: 100%; background: #1e293b; border: 1px solid #334155; 
+            color: white; padding: 0.6rem; border-radius: 0.4rem; margin-bottom: 0.5rem; 
+            box-sizing: border-box; font-family: inherit;
         }
-        input:focus { outline: 2px solid var(--accent); border-color: transparent; }
+        input:focus { outline: none; border-color: var(--accent); }
+        
+        .row { display: flex; gap: 0.5rem; }
+        .row input { margin-bottom: 0; }
 
-        button { 
-            background: var(--accent); border: none; padding: 12px; 
-            border-radius: 6px; cursor: pointer; font-weight: 700; color: #0f172a;
-            transition: transform 0.1s, opacity 0.2s;
+        button {
+            width: 100%; background: var(--accent); color: #0f172a; border: none;
+            padding: 0.75rem; border-radius: 0.4rem; font-weight: bold; cursor: pointer; 
+            margin-top: 0.75rem; transition: opacity 0.2s;
         }
-        button:active { transform: scale(0.98); }
-        button.secondary { background: #374151; color: white; }
-        button.sync-push { background: #6366f1; color: white; }
-        button.sync-pull { background: #10b981; color: white; }
+        button:hover { opacity: 0.9; }
 
         /* List */
+        .item-list { list-style: none; padding: 0; margin: 0; }
         .item { 
             display: flex; justify-content: space-between; align-items: center; 
-            padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 0.9rem;
+            padding: 0.75rem 0; border-bottom: 1px solid #334155; 
         }
-        .item-name { display: block; font-weight: 500; }
-        .item-sub { font-size: 0.75rem; color: #64748b; }
-        .del-btn { color: #f43f5e; background: none; border: none; cursor: pointer; font-size: 1.2rem; }
-
-        /* Colors */
-        .mtrn-bar { background: var(--mtrn); box-shadow: 0 0 10px rgba(244, 63, 94, 0.4); }
-        .manf-bar { background: var(--manf); box-shadow: 0 0 10px rgba(16, 185, 129, 0.4); }
-        .elec-bar { background: var(--elec); box-shadow: 0 0 10px rgba(99, 102, 241, 0.4); }
+        .item:last-child { border-bottom: none; }
+        .item-info { display: flex; flex-direction: column; gap: 0.2rem; }
+        .item-name { font-weight: 600; font-size: 0.95rem; }
+        .item-math { font-size: 0.75rem; color: #94a3b8; }
         
-        .loading { opacity: 0.5; pointer-events: none; }
+        .item-result { display: flex; align-items: center; gap: 1rem; }
+        .banked-badge { background: #334155; padding: 0.2rem 0.5rem; border-radius: 0.25rem; font-size: 0.8rem; font-weight: bold; }
+        .del-btn { background: transparent; color: #ef4444; padding: 0.2rem; width: auto; margin: 0; font-size: 1.2rem; }
+        .del-btn:hover { background: rgba(239, 68, 68, 0.1); }
     </style>
 </head>
 <body>
 
 <div class="container">
     <header>
-        <h1>GradeVibe Pro</h1>
-        <p>T3 Engineering: MTRN3020 • MANF6860 • ELEC4122</p>
+        <h1>Term 1 Tracker</h1>
+        <p>Real math for real engineering assessments.</p>
     </header>
 
-    <div class="sync-panel" id="syncPanel">
-        <label style="font-size: 0.8rem; font-weight: bold; color: var(--accent);">DEVICE SYNC</label>
-        <input type="text" id="syncKeyInput" placeholder="Enter Sync Key to Pull or leave blank to Start New">
-        <div class="sync-row">
-            <button class="sync-push" onclick="pushToCloud()">↑ Push to Cloud</button>
-            <button class="sync-pull" onclick="pullFromCloud()">↓ Pull from Cloud</button>
-        </div>
-        <div id="syncStatus" style="font-size: 0.75rem; margin-top: 10px; text-align: center;"></div>
-    </div>
-
-    <div class="subject-grid" id="mainGrid">
+    <div class="grid" id="dashboard">
         </div>
 </div>
 
 <script>
-    // Initial structures based on course outlines
+    // The core data structure
     const defaultData = {
-        mtrn: {
-            name: "MTRN3020",
-            desc: "Mechatronic Control",
-            color: "mtrn",
-            items: [
-                { name: "Lab Demos", mark: 0, weight: 20 },
-                { name: "Mid-Term", mark: 0, weight: 30 },
-                { name: "Final Exam", mark: 0, weight: 50 }
-            ]
-        },
-        manf: {
-            name: "MANF6860",
-            desc: "Strategic Mfg Mgmt",
-            color: "manf",
-            items: [
-                { name: "Case Study", mark: 0, weight: 20 },
-                { name: "Group Project", mark: 0, weight: 40 },
-                { name: "Final Assessment", mark: 0, weight: 40 }
-            ]
-        },
-        elec: {
-            name: "ELEC4122",
-            desc: "Network Planning",
-            color: "elec",
-            items: [
-                { name: "Lab Portfolio", mark: 0, weight: 25 },
-                { name: "Design Project", mark: 0, weight: 25 },
-                { name: "Final Exam", mark: 0, weight: 50 }
-            ]
-        }
+        mtrn: { id: 'mtrn', code: 'MTRN3020', name: 'Mechatronic Control', color: 'mtrn', assessments: [] },
+        manf: { id: 'manf', code: 'MANF6860', name: 'Strategic Mfg Mgmt', color: 'manf', assessments: [] },
+        elec: { id: 'elec', code: 'ELEC4122', name: 'Strategic Leadership & Ethics', color: 'elec', assessments: [] }
     };
 
-    let state = JSON.parse(localStorage.getItem('vibe_data')) || defaultData;
+    let courses = JSON.parse(localStorage.getItem('t1_marks')) || defaultData;
 
-    function render() {
-        const grid = document.getElementById('mainGrid');
-        grid.innerHTML = '';
+    function saveAndRender() {
+        localStorage.setItem('t1_marks', JSON.stringify(courses));
+        const dashboard = document.getElementById('dashboard');
+        dashboard.innerHTML = '';
 
-        for (const [id, subject] of Object.entries(state)) {
+        Object.values(courses).forEach(course => {
             let bankedMarks = 0;
-            let totalWeightSubbed = 0;
+            let weightAttempted = 0;
 
-            subject.items.forEach(item => {
-                if (item.mark > 0) {
-                    bankedMarks += (item.mark * (item.weight / 100));
-                    totalWeightSubbed += item.weight;
-                }
+            // Calculate totals
+            course.assessments.forEach(task => {
+                const percentageScore = (task.score / task.outOf);
+                const actualMarkBanked = percentageScore * task.weight;
+                bankedMarks += actualMarkBanked;
+                weightAttempted += task.weight;
             });
 
-            const currentAvg = totalWeightSubbed > 0 ? (bankedMarks / (totalWeightSubbed / 100)).toFixed(1) : 0;
+            // If you've attempted 30% of the course and banked 24 marks, your running average is 80% (24/30).
+            const runningAverage = weightAttempted > 0 ? ((bankedMarks / weightAttempted) * 100).toFixed(1) : 0;
 
             const card = document.createElement('div');
             card.className = 'card';
             card.innerHTML = `
-                <div class="subject-header">
-                    <span class="subject-title">${subject.name}</span>
-                    <span class="subject-subtitle">${subject.desc}</span>
-                </div>
-                
-                <div class="big-stat">${currentAvg}%</div>
-                <div class="banked">Banked: <b>${bankedMarks.toFixed(1)} / 100</b> total marks</div>
-
-                <div class="progress-container">
-                    <div class="progress-bar ${subject.color}-bar" style="width: ${currentAvg}%"></div>
+                <div class="course-header">
+                    <div class="course-title">${course.code}</div>
+                    <div class="course-desc">${course.name}</div>
                 </div>
 
-                <div class="input-box">
-                    <input type="text" id="n-${id}" placeholder="Task Name">
+                <div class="stats">
+                    <div class="current-grade">${runningAverage}%</div>
+                    <div class="banked-text">Banked: <b>${bankedMarks.toFixed(1)} / ${weightAttempted}</b></div>
+                </div>
+
+                <div class="progress-bg">
+                    <div class="progress-fill ${course.color}-fill" style="width: ${runningAverage}%"></div>
+                </div>
+
+                <div class="input-zone">
+                    <input type="text" id="name-${course.id}" placeholder="Task (e.g., Seminar Quiz)">
                     <div class="row">
-                        <input type="number" id="m-${id}" placeholder="Mark %">
-                        <input type="number" id="w-${id}" placeholder="Weight %">
+                        <input type="number" id="score-${course.id}" placeholder="Score (e.g., 17)">
+                        <input type="number" id="outof-${course.id}" placeholder="Out Of (e.g., 20)">
                     </div>
-                    <button onclick="addItem('${id}')">Add Assessment</button>
+                    <div class="row">
+                        <input type="number" id="weight-${course.id}" placeholder="Weight % (e.g., 15)">
+                        <button onclick="addTask('${course.id}')">Add</button>
+                    </div>
                 </div>
 
-                <div class="assessment-list">
-                    ${subject.items.map((item, index) => `
-                        <div class="item">
-                            <div>
-                                <span class="item-name">${item.name}</span>
-                                <span class="item-sub">Weight: ${item.weight}%</span>
+                <ul class="item-list">
+                    ${course.assessments.map((task, index) => {
+                        const earned = ((task.score / task.outOf) * task.weight).toFixed(1);
+                        return `
+                        <li class="item">
+                            <div class="item-info">
+                                <span class="item-name">${task.name}</span>
+                                <span class="item-math">Scored ${task.score}/${task.outOf} (Worth ${task.weight}%)</span>
                             </div>
-                            <div style="display:flex; align-items:center; gap:10px">
-                                <b>${item.mark}%</b>
-                                <button class="del-btn" onclick="deleteItem('${id}', ${index})">×</button>
+                            <div class="item-result">
+                                <span class="banked-badge">+${earned}</span>
+                                <button class="del-btn" onclick="deleteTask('${course.id}', ${index})">×</button>
                             </div>
-                        </div>
-                    `).join('')}
-                </div>
+                        </li>
+                        `
+                    }).join('')}
+                </ul>
             `;
-            grid.appendChild(card);
-        }
-        localStorage.setItem('vibe_data', JSON.stringify(state));
+            dashboard.appendChild(card);
+        });
     }
 
-    function addItem(id) {
-        const n = document.getElementById(`n-${id}`).value;
-        const m = parseFloat(document.getElementById(`m-${id}`).value);
-        const w = parseFloat(document.getElementById(`w-${id}`).value);
-        if (n && !isNaN(m)) {
-            state[id].items.push({ name: n, mark: m, weight: w || 0 });
-            render();
-        }
-    }
+    function addTask(courseId) {
+        const name = document.getElementById(`name-${courseId}`).value;
+        const score = parseFloat(document.getElementById(`score-${courseId}`).value);
+        const outOf = parseFloat(document.getElementById(`outof-${courseId}`).value);
+        const weight = parseFloat(document.getElementById(`weight-${courseId}`).value);
 
-    function deleteItem(id, index) {
-        state[id].items.splice(index, 1);
-        render();
-    }
-
-    // --- CLOUD ENGINE (JSONBlob) ---
-    async function pushToCloud() {
-        const status = document.getElementById('syncStatus');
-        const keyInput = document.getElementById('syncKeyInput');
-        const panel = document.getElementById('syncPanel');
-        
-        status.innerText = "Pushing to cloud...";
-        panel.classList.add('loading');
-
-        try {
-            const method = keyInput.value ? 'PUT' : 'POST';
-            const url = keyInput.value ? `https://jsonblob.com/api/jsonBlob/${keyInput.value}` : `https://jsonblob.com/api/jsonBlob`;
-
-            const res = await fetch(url, {
-                method: method,
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(state)
-            });
-
-            if (method === 'POST') {
-                const blobId = res.headers.get('Location').split('/').pop();
-                keyInput.value = blobId;
-                status.innerText = "Success! Save this Key for other devices: " + blobId;
-            } else {
-                status.innerText = "Cloud Updated Successfully!";
-            }
-        } catch (e) {
-            status.innerText = "Error pushing data.";
-        }
-        panel.classList.remove('loading');
-    }
-
-    async function pullFromCloud() {
-        const key = document.getElementById('syncKeyInput').value;
-        const status = document.getElementById('syncStatus');
-        if (!key) return alert("Paste your Sync Key first!");
-
-        status.innerText = "Pulling data...";
-        try {
-            const res = await fetch(`https://jsonblob.com/api/jsonBlob/${key}`);
-            if (!res.ok) throw new Error();
-            state = await res.json();
-            render();
-            status.innerText = "Sync Complete!";
-        } catch (e) {
-            status.innerText = "Error: Invalid Key or Network Issue.";
+        if (name && !isNaN(score) && !isNaN(outOf) && !isNaN(weight) && outOf > 0) {
+            courses[courseId].assessments.push({ name, score, outOf, weight });
+            saveAndRender();
+        } else {
+            alert("Make sure all fields are filled out correctly (and 'Out Of' is greater than 0).");
         }
     }
 
-    render();
+    function deleteTask(courseId, index) {
+        courses[courseId].assessments.splice(index, 1);
+        saveAndRender();
+    }
+
+    // Load UI
+    saveAndRender();
 </script>
-
 </body>
 </html>
