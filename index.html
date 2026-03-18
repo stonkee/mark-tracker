@@ -31,7 +31,6 @@
         h1 { margin: 0 0 0.5rem; color: var(--accent); font-size: 2.5rem; letter-spacing: -1px; }
         p { color: #94a3b8; margin: 0; }
 
-        /* Sync Panel */
         .sync-panel {
             background: rgba(56, 189, 248, 0.05);
             border: 1px dashed var(--accent);
@@ -67,7 +66,6 @@
         .manf-fill { background: var(--manf); }
         .elec-fill { background: var(--elec); }
 
-        /* Inputs */
         .input-zone { background: #0f172a; padding: 1rem; border-radius: 0.75rem; margin-bottom: 1rem; }
         input { 
             width: 100%; background: #1e293b; border: 1px solid #334155; 
@@ -85,7 +83,6 @@
             margin-top: 0.75rem; transition: opacity 0.2s;
         }
 
-        /* List */
         .item-list { list-style: none; padding: 0; margin: 0; }
         .item { display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 0; border-bottom: 1px solid #334155; }
         .item:last-child { border-bottom: none; }
@@ -117,8 +114,7 @@
         <div id="syncStatus" style="font-size: 0.8rem; margin-top: 10px; text-align: center;"></div>
     </div>
 
-    <div class="grid" id="dashboard">
-        </div>
+    <div class="grid" id="dashboard"></div>
 </div>
 
 <script>
@@ -147,80 +143,7 @@
 
             const runningAverage = weightAttempted > 0 ? ((bankedMarks / weightAttempted) * 100).toFixed(1) : 0;
 
-            const card = document.createElement('div');
-            card.className = 'card';
-            
-            // Clean template literals without escapes this time
-            card.innerHTML = `
-                <div class="course-header">
-                    <div class="course-title">${course.code}</div>
-                    <div class="course-desc">${course.name}</div>
-                </div>
-
-                <div class="stats">
-                    <div class="current-grade">${runningAverage}%</div>
-                    <div class="banked-text">Banked: <b>${bankedMarks.toFixed(1)} / ${weightAttempted}</b></div>
-                </div>
-
-                <div class="progress-bg">
-                    <div class="progress-fill ${course.color}-fill" style="width: ${runningAverage}%"></div>
-                </div>
-
-                <div class="input-zone">
-                    <input type="text" id="name-${course.id}" placeholder="Task (e.g., Seminar Quiz)">
-                    <div class="row">
-                        <input type="number" id="score-${course.id}" placeholder="Score (e.g., 17)">
-                        <input type="number" id="outof-${course.id}" placeholder="Out Of (e.g., 20)">
-                    </div>
-                    <div class="row">
-                        <input type="number" id="weight-${course.id}" placeholder="Weight % (e.g., 15)">
-                        <button class="add-btn" onclick="addTask('${course.id}')">Add</button>
-                    </div>
-                </div>
-
-                <ul class="item-list">
-                    ${course.assessments.map((task, index) => {
-                        const earned = ((task.score / task.outOf) * task.weight).toFixed(1);
-                        return \`
-                        <li class="item">
-                            <div class="item-info">
-                                <span class="item-name">\${task.name}</span>
-                                <span class="item-math">Scored \${task.score}/\${task.outOf} (Worth \${task.weight}%)</span>
-                            </div>
-                            <div class="item-result">
-                                <span class="banked-badge">+\${earned}</span>
-                                <button class="del-btn" onclick="deleteTask('\${course.id}', \${index})">×</button>
-                            </div>
-                        </li>
-                        \`.replace(/\\\\/g, ''); // Safety net for string generation
-                    }).join('').replace(/\\\\/g, '')}
-                </ul>
-            `;
-            // Actually, let's write it the 100% native JS way to guarantee it doesn't break. 
-            // Disregard the previous hacky template, I will build it cleanly below.
-            
-            dashboard.appendChild(card);
-        });
-    }
-    
-    // Let's rewrite saveAndRender to be foolproof
-    function saveAndRenderSafe() {
-        localStorage.setItem('t1_marks', JSON.stringify(courses));
-        const dashboard = document.getElementById('dashboard');
-        dashboard.innerHTML = '';
-
-        Object.values(courses).forEach(course => {
-            let bankedMarks = 0;
-            let weightAttempted = 0;
-
-            course.assessments.forEach(task => {
-                const percentageScore = (task.score / task.outOf);
-                bankedMarks += percentageScore * task.weight;
-                weightAttempted += task.weight;
-            });
-
-            const runningAverage = weightAttempted > 0 ? ((bankedMarks / weightAttempted) * 100).toFixed(1) : 0;
-
+            // Cleanly build the list items first to avoid nested template literal errors
             let listHTML = '';
             course.assessments.forEach((task, index) => {
                 const earned = ((task.score / task.outOf) * task.weight).toFixed(1);
@@ -237,6 +160,7 @@
                 </li>`;
             });
 
+            // Construct the main card HTML
             const card = document.createElement('div');
             card.className = 'card';
             card.innerHTML = `
@@ -268,18 +192,22 @@
         });
     }
 
-    // Overwrite the broken function with the safe one
-    saveAndRender = saveAndRenderSafe;
-
     function addTask(courseId) {
-        const name = document.getElementById(`name-${courseId}`).value;
-        const score = parseFloat(document.getElementById(`score-${courseId}`).value);
-        const outOf = parseFloat(document.getElementById(`outof-${courseId}`).value);
-        const weight = parseFloat(document.getElementById(`weight-${courseId}`).value);
+        const nameInput = document.getElementById(`name-${courseId}`);
+        const scoreInput = document.getElementById(`score-${courseId}`);
+        const outOfInput = document.getElementById(`outof-${courseId}`);
+        const weightInput = document.getElementById(`weight-${courseId}`);
+
+        const name = nameInput.value.trim();
+        const score = parseFloat(scoreInput.value);
+        const outOf = parseFloat(outOfInput.value);
+        const weight = parseFloat(weightInput.value);
 
         if (name && !isNaN(score) && !isNaN(outOf) && !isNaN(weight) && outOf > 0) {
             courses[courseId].assessments.push({ name, score, outOf, weight });
             saveAndRender();
+        } else {
+            alert("Please ensure all fields are correctly filled before adding an assessment.");
         }
     }
 
@@ -288,7 +216,7 @@
         saveAndRender();
     }
 
-    // --- CLOUD SYNC LOGIC ---
+    // Cloud Sync Logic
     async function pushToCloud() {
         const status = document.getElementById('syncStatus');
         const keyInput = document.getElementById('syncKeyInput');
@@ -298,8 +226,9 @@
         panel.classList.add('loading');
 
         try {
-            const method = keyInput.value ? 'PUT' : 'POST';
-            const url = keyInput.value ? `https://jsonblob.com/api/jsonBlob/${keyInput.value}` : `https://jsonblob.com/api/jsonBlob`;
+            const isUpdate = keyInput.value.trim().length > 0;
+            const method = isUpdate ? 'PUT' : 'POST';
+            const url = isUpdate ? `https://jsonblob.com/api/jsonBlob/${keyInput.value}` : `https://jsonblob.com/api/jsonBlob`;
 
             const res = await fetch(url, {
                 method: method,
@@ -315,28 +244,31 @@
                 status.innerText = "Cloud Updated Successfully!";
             }
         } catch (e) {
+            console.error(e);
             status.innerText = "Error pushing data. Check your connection.";
         }
         panel.classList.remove('loading');
     }
 
     async function pullFromCloud() {
-        const key = document.getElementById('syncKeyInput').value;
+        const key = document.getElementById('syncKeyInput').value.trim();
         const status = document.getElementById('syncStatus');
         if (!key) return alert("Paste your Sync Key first!");
 
         status.innerText = "Pulling data...";
         try {
             const res = await fetch(`https://jsonblob.com/api/jsonBlob/${key}`);
-            if (!res.ok) throw new Error();
+            if (!res.ok) throw new Error("Invalid response");
             courses = await res.json();
             saveAndRender();
             status.innerText = "Sync Complete! Data loaded.";
         } catch (e) {
+            console.error(e);
             status.innerText = "Error: Invalid Key or Network Issue.";
         }
     }
 
+    // Initial render
     saveAndRender();
 </script>
 </body>
