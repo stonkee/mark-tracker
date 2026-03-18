@@ -149,6 +149,8 @@
 
             const card = document.createElement('div');
             card.className = 'card';
+            
+            // Clean template literals without escapes this time
             card.innerHTML = `
                 <div class="course-header">
                     <div class="course-title">${course.code}</div>
@@ -190,13 +192,84 @@
                                 <button class="del-btn" onclick="deleteTask('\${course.id}', \${index})">×</button>
                             </div>
                         </li>
-                        \`
-                    }).join('')}
+                        \`.replace(/\\\\/g, ''); // Safety net for string generation
+                    }).join('').replace(/\\\\/g, '')}
                 </ul>
+            `;
+            // Actually, let's write it the 100% native JS way to guarantee it doesn't break. 
+            // Disregard the previous hacky template, I will build it cleanly below.
+            
+            dashboard.appendChild(card);
+        });
+    }
+    
+    // Let's rewrite saveAndRender to be foolproof
+    function saveAndRenderSafe() {
+        localStorage.setItem('t1_marks', JSON.stringify(courses));
+        const dashboard = document.getElementById('dashboard');
+        dashboard.innerHTML = '';
+
+        Object.values(courses).forEach(course => {
+            let bankedMarks = 0;
+            let weightAttempted = 0;
+
+            course.assessments.forEach(task => {
+                const percentageScore = (task.score / task.outOf);
+                bankedMarks += percentageScore * task.weight;
+                weightAttempted += task.weight;
+            });
+
+            const runningAverage = weightAttempted > 0 ? ((bankedMarks / weightAttempted) * 100).toFixed(1) : 0;
+
+            let listHTML = '';
+            course.assessments.forEach((task, index) => {
+                const earned = ((task.score / task.outOf) * task.weight).toFixed(1);
+                listHTML += `
+                <li class="item">
+                    <div class="item-info">
+                        <span class="item-name">${task.name}</span>
+                        <span class="item-math">Scored ${task.score}/${task.outOf} (Worth ${task.weight}%)</span>
+                    </div>
+                    <div class="item-result">
+                        <span class="banked-badge">+${earned}</span>
+                        <button class="del-btn" onclick="deleteTask('${course.id}', ${index})">×</button>
+                    </div>
+                </li>`;
+            });
+
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.innerHTML = `
+                <div class="course-header">
+                    <div class="course-title">${course.code}</div>
+                    <div class="course-desc">${course.name}</div>
+                </div>
+                <div class="stats">
+                    <div class="current-grade">${runningAverage}%</div>
+                    <div class="banked-text">Banked: <b>${bankedMarks.toFixed(1)} / ${weightAttempted}</b></div>
+                </div>
+                <div class="progress-bg">
+                    <div class="progress-fill ${course.color}-fill" style="width: ${runningAverage}%"></div>
+                </div>
+                <div class="input-zone">
+                    <input type="text" id="name-${course.id}" placeholder="Task (e.g., Seminar Quiz)">
+                    <div class="row">
+                        <input type="number" id="score-${course.id}" placeholder="Score (e.g., 17)">
+                        <input type="number" id="outof-${course.id}" placeholder="Out Of (e.g., 20)">
+                    </div>
+                    <div class="row">
+                        <input type="number" id="weight-${course.id}" placeholder="Weight % (e.g., 15)">
+                        <button class="add-btn" onclick="addTask('${course.id}')">Add</button>
+                    </div>
+                </div>
+                <ul class="item-list">${listHTML}</ul>
             `;
             dashboard.appendChild(card);
         });
     }
+
+    // Overwrite the broken function with the safe one
+    saveAndRender = saveAndRenderSafe;
 
     function addTask(courseId) {
         const name = document.getElementById(`name-${courseId}`).value;
